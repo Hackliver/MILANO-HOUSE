@@ -107,7 +107,9 @@ for index, url in enumerate(all_announcements_urls):
     time.sleep(sleep)
     print(f"Scraped {index} webpage")
 
-df.to_csv("test.csv", index=False)
+#%%
+#df.to_csv("test.csv", index=False)
+df.to_parquet('milano_housing_price.parquet.gzip', compression='gzip')
 
 
 #%%
