@@ -24,7 +24,7 @@ def get_url(limit=80):
 
 # WEBSITE DECLARATION AND REQUEST
 def get_all_announcements_urls(urls):
-    print("Fecthing all the announcements urls...")
+    print(colored("Fecthing all the announcements urls..."), "blue", attrs=["bold"])
     all_announcements_urls = []
     for index, url in enumerate(urls):
         if index % 10 == 0:
@@ -140,41 +140,3 @@ def main():
         df_update.to_parquet('milano_housing_price_raw.parquet.gzip', compression='gzip')
         print(colored(f"Saved {len(diff)} more annoucements", 'green', attrs=['bold']))
 
-
-#%%
-"""
-#%%
-#%%
-href = get_url()
-all_announcements_urls = get_all_announcements_urls(href)
-diff = read_parquet(all_announcements_urls)
-
-#%%
-for index, url in enumerate(diff):
-    ads_info = make_dataframe(url)
-
-#%%
-response = requests.get("https://www.immobiliare.it/vendita-case/milano/?criterio=rilevanza&pag=5")
-soup = bs(response.content)
-
-#%%
-urls = get_url()
-for url in urls:
-    try:
-        response = requests.get(url)
-        #.status_code
-        #print(response.content)
-        soup = bs(response.content)
-        page_urls = soup.select(".in-card__title")
-        page_urls = [url.get("href") for url in page_urls]
-        all_announcements_urls.append(page_urls)
-    except:
-        print("Error in: ", url)
-        pass
-
-#%%
-for i in all_announcements_urls:
-    soup, url = get_home_soup(i)
-
-#%%
-"""
