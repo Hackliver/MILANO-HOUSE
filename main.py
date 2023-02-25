@@ -16,6 +16,6 @@ clean.main()
 print(colored("Done!", "blue", attrs=["bold"]))
 
 end = time.time()
-print(end - start)
+print((end - start)/60, "minutes")
 
 #%%
