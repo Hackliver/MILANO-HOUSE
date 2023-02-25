@@ -57,13 +57,14 @@ def clean_data(df):
     return df
 
 def create_clean_data(df):
-    #df.to_csv('milano_housing_price_clean.csv', index=False)
+    df.to_csv('milano_housing_price_clean.csv', index=False)
     df.to_parquet('milano_housing_price_clean.parquet.gzip', engine='fastparquet')
     print('data cleaned and saved')
 
-#%%
+# main
 def main():
     df = upload_data()
     df = clean_data(df)
     create_clean_data(df)
+
 #%%
