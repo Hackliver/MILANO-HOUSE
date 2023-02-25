@@ -16,6 +16,8 @@ clean.main()
 print(colored("Done!", "blue", attrs=["bold"]))
 
 end = time.time()
-print((end - start)/60, "minutes")
+tot_time = round((end - start)/60, 2)
+print(tot_time, "minutes")
+
 
 #%%

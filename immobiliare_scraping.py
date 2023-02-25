@@ -24,7 +24,7 @@ def get_url(limit=80):
 
 # WEBSITE DECLARATION AND REQUEST
 def get_all_announcements_urls(urls):
-    print(colored("Fecthing all the announcements urls..."), "blue", attrs=["bold"])
+    print(colored("Fecthing all the announcements urls...", "blue", attrs=["bold"]))
     all_announcements_urls = []
     for index, url in enumerate(urls):
         if index % 10 == 0:
@@ -140,3 +140,4 @@ def main():
         df_update.to_parquet('milano_housing_price_raw.parquet.gzip', compression='gzip')
         print(colored(f"Saved {len(diff)} more annoucements", 'green', attrs=['bold']))
 
+#%%
