@@ -16,37 +16,41 @@ div_text = open(r'preddy_div', 'w', encoding="utf-8")
 div_text.write(div)
 """
 
-#%%
-limit = 80
 
-url1 = "https://www.immobiliare.it/vendita-case/milano/?criterio=rilevanza"
-urls = []
-for pages in range(2, limit):
-    url = "https://www.immobiliare.it/vendita-case/milano/?criterio=rilevanza&pag=" + str(pages)
-    urls.append(url)
+def get_url(limit=80):
+    url1 = "https://www.immobiliare.it/vendita-case/milano/?criterio=rilevanza"
+    urls = []
+    for pages in range(2, limit):
+        url = "https://www.immobiliare.it/vendita-case/milano/?criterio=rilevanza&pag=" + str(pages)
+        urls.append(url)
 
-urls.append(url1)
+    urls.append(url1)
+    return urls
 
 
-#%% WEBSITE DECLARATION AND REQUEST
-all_announcements_urls = []
-for url in urls:
-    response = requests.get(url)
-    #.status_code
-    #print(response.content)
-    soup = bs(response.content)
-    page_urls = soup.select(".in-card__title")
-    page_urls = [url.get("href") for url in page_urls]
-    all_announcements_urls.append(page_urls)
+# WEBSITE DECLARATION AND REQUEST
+def get_all_announcements_urls(urls):
+    print("Fecthing all the announcements urls...")
+    all_announcements_urls = []
+    for url in urls:
+        response = requests.get(url)
+        #.status_code
+        #print(response.content)
+        soup = bs(response.content)
+        page_urls = soup.select(".in-card__title")
+        page_urls = [url.get("href") for url in page_urls]
+        all_announcements_urls.append(page_urls)
 
-all_announcements_urls = [url for page in all_announcements_urls for url in page]
+    all_announcements_urls = [url for page in all_announcements_urls for url in page]
+    return all_announcements_urls
 
 
 # GO TO EACH ANNOUNCEMENT AND GET INFO
-def get_home_soup(href):
-    response = requests.get(href)
+def get_home_soup(url):
+    response = requests.get(url)
     soup = bs(response.content)
-    return soup, href
+    return soup, url
+
 
 # GET PRICE
 def get_price(soup):
@@ -62,6 +66,7 @@ def get_main_items(soup):
     d_items_main = dict(zip(items_label, items_value))
     return d_items_main
 
+
 # OTHER ITEMS
 def get_other_items(soup):
     other_items = soup.select(".in-realEstateFeatures__list")
@@ -70,7 +75,8 @@ def get_other_items(soup):
     d_items_others = dict(zip(items_label, items_value))
     return d_items_others
 
-#
+
+# GET ALL ITEMS
 def get_all_items(soup):
     all_items = soup.select(".in-realEstateFeatures__title")
     all_items_labels = [item.get_text() for item in all_items]
@@ -89,7 +95,7 @@ def get_address(soup):
     return d_location
 
 
-#
+# CREATE PANDAS DATAFRAME
 def make_dataframe(href):
     soup, url = get_home_soup(href)
     mergedDict = get_main_items(soup) | get_other_items(soup) | get_all_items(soup) | get_address(soup)
@@ -97,39 +103,48 @@ def make_dataframe(href):
     df['href'] = url
     return df
 
+
+def read_parquet(all_announcements_urls):
+    df = pd.read_parquet('milano_housing_price_raw.parquet.gzip')
+    href_done = df['href'].tolist()
+    diff = list(set(all_announcements_urls).difference(set(href_done)))
+    return diff
+
+
+def main():
+    sleep = random.randint(1, 10)/10
+
+    href = get_url()
+    all_announcements_urls = get_all_announcements_urls(href)
+    diff = read_parquet(all_announcements_urls)
+    print(f"Found {diff} new announcements to scrape")
+
+    df = make_dataframe(href)
+    df_update = pd.DataFrame()
+    for index, url in enumerate(diff):
+        ads_info = make_dataframe(url)
+        df_update = pd.concat([df_update, ads_info], axis=0)
+        time.sleep(sleep)
+        print(f"Scraped {index} webpage")
+
+    df_update = pd.concat([df, df_update], axis=0)
+    df_update.to_parquet('milano_housing_price_raw.parquet.gzip', compression='gzip')
+    print('done')
+
+main()
+
+
 #%%
-sleep = random.randint(1, 10)/10
-
-df = pd.DataFrame()
-for index, url in enumerate(all_announcements_urls):
-    ads_info = make_dataframe(url)
-    df = pd.concat([df, ads_info], axis=0)
-    time.sleep(sleep)
-    print(f"Scraped {index} webpage")
-
-#%%
-#df.to_csv("test.csv", index=False)
-df.to_parquet('milano_housing_price.parquet.gzip', compression='gzip')
 
 
-#%%
-df.columns
-
-#%%
-list(df['rooms'])
-
-#%%
+"""
 import sqlite3
 conn = sqlite3.connect("milan_house_db")
 c = conn.cursor()
 c.execute("""""")
 
 
-#%%
 
-
-
-"""
 mylist = soup.select(".in-realEstateFeatures__list")
 
 tags, values = [], []
