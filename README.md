@@ -10,7 +10,15 @@ When the [immobiliare_scrapint.py](https://github.com/tommella90/milano-housing-
 The [clean_data.py](https://github.com/tommella90/milano-housing-price/blob/main/clean_data.py) script cleans the data scraped and returns a zipped csv with a pandas 
 dataframe inside. 
 
-Tu use it: 
+____________________________________
+You can simply download the data. 
+Alternatively, you can run the scripts: they scripts are made so that it automatically updates the dataframe with all the new annoucements. 
+Over time, it will be possibile to perform time-series analysis. 
+
+
+***How to use***:
+____________________________________
+## 1 GIT REPOSITORY
 
 ```
 git clone https://github.com/tommella90/milano-housing-price/
@@ -24,4 +32,13 @@ pip install requirements.txt
 python main.py
 ```
 
-Alternatively, you can use this [docker image](https://hub.docker.com/repository/docker/tommella90/milano-housing/general) 
+### 2 DOCKER IMAGE
+Download this [docker image](https://hub.docker.com/repository/docker/tommella90/milano-housing/general) 
+```
+docker push tommella90/milano-housing:tagname
+```
+
+```
+docker run -it tommella90/milano-housing:2
+```
+
