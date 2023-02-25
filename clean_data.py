@@ -51,8 +51,9 @@ def clean_data(df):
 
     df['housing units'] = df['housing units'].str.replace(r'\D', '')
 
-    columns_to_drop = ['surface', 'renewable_energy_performance_index',
-                       'rooms2', 'description', 'address']
+    columns_to_drop = ['surface', 'renewable_energy_performance_index', 'prezzo',
+                       'rooms2', 'description', 'address', 'price_bis', 'href',
+                       'energy_class', 'condominium_expenses2', 'floor2']
 
     df.drop(columns=columns_to_drop, inplace=True)
     return df
@@ -69,3 +70,5 @@ def main():
     df = clean_data(df)
     create_clean_data(df)
 
+
+#%%
