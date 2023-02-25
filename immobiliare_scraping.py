@@ -4,6 +4,10 @@ from urllib import *
 import requests
 import time
 import random
+from termcolor import colored
+import warnings
+
+warnings.filterwarnings("ignore")
 import re
 
 
@@ -22,14 +26,20 @@ def get_url(limit=80):
 def get_all_announcements_urls(urls):
     print("Fecthing all the announcements urls...")
     all_announcements_urls = []
-    for url in urls:
-        response = requests.get(url)
-        #.status_code
-        #print(response.content)
-        soup = bs(response.content)
-        page_urls = soup.select(".in-card__title")
-        page_urls = [url.get("href") for url in page_urls]
-        all_announcements_urls.append(page_urls)
+    for index, url in enumerate(urls):
+        if index % 10 == 0:
+            print("Page: ", index, " of ", len(urls))
+        try:
+            response = requests.get(url)
+            soup = bs(response.content, "html.parser")
+            page_urls = soup.select(".in-card__title")
+            page_urls = [url.get("href") for url in page_urls]
+            all_announcements_urls.append(page_urls)
+
+        except:
+            print(colored('ERROR in', 'red'))
+            print(colored(url, 'red'))
+            pass
 
     all_announcements_urls = [url for page in all_announcements_urls for url in page]
     return all_announcements_urls
@@ -94,8 +104,11 @@ def make_dataframe(href):
     return df
 
 
-def read_parquet(all_announcements_urls):
-    df = pd.read_parquet('milano_housing_price_raw.parquet.gzip')
+def read_parquet():
+    return pd.read_parquet('milano_housing_price_raw.parquet.gzip')
+
+
+def find_new_announcements(df, all_announcements_urls):
     href_done = df['href'].tolist()
     diff = list(set(all_announcements_urls).difference(set(href_done)))
     return diff
@@ -104,22 +117,64 @@ def read_parquet(all_announcements_urls):
 def main():
     sleep = random.randint(1, 10)/10
 
+    df = read_parquet()
     href = get_url()
     all_announcements_urls = get_all_announcements_urls(href)
-    diff = read_parquet(all_announcements_urls)
-    print(f"Found {diff} new announcements to scrape")
+    diff = find_new_announcements(df, all_announcements_urls)
 
-    df = make_dataframe(href)
-    df_update = pd.DataFrame()
-    for index, url in enumerate(diff):
-        ads_info = make_dataframe(url)
-        df_update = pd.concat([df_update, ads_info], axis=0)
-        time.sleep(sleep)
-        print(f"Scraped {index} webpage")
+    if diff==0:
+        print(colored('No new data to scrape. Try tomorrow', 'yellow'))
+        pass
 
-    df_update = pd.concat([df, df_update], axis=0)
-    df_update.to_parquet('milano_housing_price_raw.parquet.gzip', compression='gzip')
-    print('done')
+    else:
+        print(colored(f"Found {len(diff)} new announcements to scrape", 'green'))
 
-main()
+        df_update = pd.DataFrame()
+        for index, url in enumerate(diff):
+            ads_info = make_dataframe(url)
+            df_update = pd.concat([df_update, ads_info], axis=0)
+            time.sleep(sleep)
+            print(f"Scraped {index}/{len(diff)} webpage")
 
+        df_update = pd.concat([df, df_update], axis=0)
+        df_update.to_parquet('milano_housing_price_raw.parquet.gzip', compression='gzip')
+        print(colored(f"Saved {len(diff)} more annoucements", 'green', attrs=['bold']))
+
+
+#%%
+"""
+#%%
+#%%
+href = get_url()
+all_announcements_urls = get_all_announcements_urls(href)
+diff = read_parquet(all_announcements_urls)
+
+#%%
+for index, url in enumerate(diff):
+    ads_info = make_dataframe(url)
+
+#%%
+response = requests.get("https://www.immobiliare.it/vendita-case/milano/?criterio=rilevanza&pag=5")
+soup = bs(response.content)
+
+#%%
+urls = get_url()
+for url in urls:
+    try:
+        response = requests.get(url)
+        #.status_code
+        #print(response.content)
+        soup = bs(response.content)
+        page_urls = soup.select(".in-card__title")
+        page_urls = [url.get("href") for url in page_urls]
+        all_announcements_urls.append(page_urls)
+    except:
+        print("Error in: ", url)
+        pass
+
+#%%
+for i in all_announcements_urls:
+    soup, url = get_home_soup(i)
+
+#%%
+"""

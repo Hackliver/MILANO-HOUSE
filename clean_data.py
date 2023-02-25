@@ -5,12 +5,12 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def upload_data():
-    df = pd.read_parquet('milano_housing_price.parquet.gzip', engine='fastparquet')
-    df.columns = ['price', 'rooms', 'm2', 'bathrooms', 'floor', 'description',
+    df = pd.read_parquet('milano_housing_price_raw.parquet.gzip', engine='fastparquet')
+    df.columns = ['price_bis', 'rooms', 'm2', 'bathrooms', 'floor', 'description',
                   'condominium_expenses', 'energy_class', 'date',
                   'contract', 'typology', 'surface', 'rooms2', 'floor2',
                   'total_floors', 'availability', 'other_features',
-                  'price2', 'condominium_expenses2', 'year_of_build', 'condition',
+                  'price', 'condominium_expenses2', 'year_of_build', 'condition',
                   'heating', 'air_conditioning', 'energy_efficiency', 'city',
                   'neighborhood', 'address', 'href', 'car_parking',
                   'renewable_energy_performance_index',
@@ -22,7 +22,8 @@ def upload_data():
 
 def clean_data(df):
     df['price'] = df['price'].str.replace('€', '')
-    df['price'] = df['price'].apply(lambda x: x.split('-')[0] if x else x)
+    df['price'] = df['price'].str.replace('.', '', regex=False)
+    df['price'] = df['price'].apply(lambda x: pd.to_numeric(x, errors='coerce') )
 
     df['m2'] = df['m2'].str.replace(r'\D', '')
 
@@ -50,7 +51,7 @@ def clean_data(df):
 
     df['housing units'] = df['housing units'].str.replace(r'\D', '')
 
-    columns_to_drop = ['price2', 'surface', 'renewable_energy_performance_index',
+    columns_to_drop = ['surface', 'renewable_energy_performance_index',
                        'rooms2', 'description', 'address']
 
     df.drop(columns=columns_to_drop, inplace=True)
@@ -60,6 +61,7 @@ def create_clean_data(df):
     df.to_csv('milano_housing_price_clean.csv', index=False)
     df.to_parquet('milano_housing_price_clean.parquet.gzip', engine='fastparquet')
     print('data cleaned and saved')
+    return df
 
 # main
 def main():
@@ -67,4 +69,3 @@ def main():
     df = clean_data(df)
     create_clean_data(df)
 
-#%%
