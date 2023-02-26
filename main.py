@@ -12,6 +12,8 @@ try:
 except:
     "No new data to scrape. Try tomorrow"
 
+print(colored('All libraries imported', 'blue', attrs=['bold']))
+
 clean.main()
 print(colored("Done!", "blue", attrs=["bold"]))
 
