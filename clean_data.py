@@ -65,15 +65,16 @@ def clean_data(df):
     df['renewable_energy_performance_index_KWh/m2'] = df['renewable_energy_performance_index'].str.replace(r'\D', '')
 
     df['air_conditioning_heat'].unique()
-    air_conditioning_replace = {'freddo/caldo': 'cold/hot',
-                                'freddo': 'cold',
-                                'caldo': 'hot'}
-    df['air_conditioning_heat'].replace(air_conditioning_replace, inplace=True)
+
+    df['air_conditioning_heat'] = df['air_conditioning_heat'].str.replace("freddo/caldo", "cold/hot")
+    df['air_conditioning_heat'] = df['air_conditioning_heat'].str.replace("freddo", "cold")
+    df['air_conditioning_heat'] = df['air_conditioning_heat'].str.replace("caldo", "hot")
 
     df['housing units'] = df['housing units'].str.replace(r'\D', '')
 
     df["air_conditioning_heat"].replace({np.nan: None}, inplace=True)
     df["heating_gas"].replace({np.nan: None}, inplace=True)
+    df["heating_radiator"].replace({np.nan: None}, inplace=True)
     df['air_conditioning_heat'] = df['air_conditioning_heat'].str.lower()
 
     columns_to_drop = ['surface', 'renewable_energy_performance_index', 'prezzo',
@@ -107,8 +108,8 @@ def create_cleaned_data(df):
 
 # main
 cols_to_translate = ['contract', 'typology', 'availability', 'condition', 'availability',
-                     'air_conditioning', 'energy_performance_building',
-                     'heating_centralized', 'air_conditiong_centralized']
+                     'air_conditioning', 'energy_performance_building', 'heating_radiator',
+                     'heating_gas', 'heating_centralized', 'air_conditiong_centralized']
 
 categorical_columns = ['contract', 'typology', 'availability','other_features', 'condition',
                        'air_conditioning', 'energy_efficiency', 'city', 'neighborhood',
@@ -124,9 +125,3 @@ def main():
     create_cleaned_data(df)
     return df
 
-df = main()
-
-
-#%%
-
-#%%
