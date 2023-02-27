@@ -1,6 +1,8 @@
 # MILANO HOUSE ANNOUNCEMENTS DATASET CREATION 
 ## WEB SCRAPING & BEAUTIFUL SOUP
  - The repository contains a dataframe with houses annoucements in Milan, web-scraped ah this [link](https://www.immobiliare.it/vendita-case/milano/?criterio=rilevanza) with Beautifull Soup
+ 
+ [KAGGLE LINK HERE](https://www.kaggle.com/datasets/tommasoramella/milano-housing-price)
 
 - If you run the scripts, they will automatically update the dataframe with all the new annoucements. 
 Over time, it will be possibile to perform time-series analysis. 
